@@ -28,51 +28,50 @@ export default function VoiceRecorderApp() {
 
   const startRecording = async () => {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    const isSafari =
-  typeof navigator.userAgentData !== "undefined"
-    ? navigator.userAgentData.brands?.some((b) => b.brand === "Safari")
-    : /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-
-    // MIME type already defined in startRecording, reusing
-      const mimeType = mediaRecorderRef.current?.mimeType || (isSafari ? "audio/mpeg" : "audio/webm");
-    const recorder = new MediaRecorder(stream, { mimeType });
-
+    let recorder: MediaRecorder;
+    // Safari detection
+    const isSafari = typeof navigator.userAgentData !== "undefined"
+      ? navigator.userAgentData.brands?.some((b) => b.brand === "Safari")
+      : /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    try {
+      const mimeType = isSafari ? "audio/mp4" : "audio/webm";
+      recorder = new MediaRecorder(stream, { mimeType });
+    } catch {
+      recorder = new MediaRecorder(stream);
+    }
     mediaRecorderRef.current = recorder;
+    // Clear previous chunks
     audioChunksRef.current.length = 0;
-    recorder.start();
-    setIsRecording(true);
-    recorder.ondataavailable = e => audioChunksRef.current.push(e.data);
+
+    recorder.ondataavailable = (e) => audioChunksRef.current.push(e.data);
     recorder.onstop = () => {
       console.log("Recording stopped. Checking chunks...");
       console.log("Chunks:", audioChunksRef.current);
-
       if (audioChunksRef.current.length === 0) {
         console.warn("No audio chunks captured. Possible microphone access issue.");
-        alert("녹음된 소리가 없습니다. 마이크 권한 또는 브라우저 설정을 확인하세요.");
+        alert(t.error);
         setIsRecording(false);
         return;
       }
-
-      const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-      const mimeType = isSafari ? "audio/mpeg" : "audio/webm";
-      const blob = new Blob(audioChunksRef.current, { type: mimeType });
+      const typeInner = isSafari ? "audio/mp4" : "audio/webm";
+      const blob = new Blob(audioChunksRef.current, { type: typeInner });
       console.log("Blob size:", blob.size);
       if (blob.size === 0) {
         console.warn("Blob is empty. Cannot create audio URL.");
-        alert("녹음된 오디오가 비어 있습니다. 다시 시도해주세요.");
+        alert(t.error);
         setIsRecording(false);
         return;
       }
-
       const url = URL.createObjectURL(blob);
       console.log("Audio URL:", url);
-      if (audioURL) {
-      URL.revokeObjectURL(audioURL);
-      }
-
+      if (audioURL) URL.revokeObjectURL(audioURL);
       setAudioURL(url);
       setIsRecording(false);
     };
+
+    recorder.start();
+    setIsRecording(true);
+  };
   };
 
   const stopRecording = () => {
