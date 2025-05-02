@@ -3,20 +3,20 @@
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, Trash2 } from "lucide-react";
 
 const translations = {
-  en: { label: "English", heading: "Voice/Text Input", selectLabel: "Select Language", inputModeLabel: "Choose input method", voice: "🎙 Record", text: "⌨️ Type", message: "Hello, record or type your question in your native language!", start: "🎙 Start Recording", stop: "🛑 Stop Recording", preview: "Preview Recording:", error: "Audio playback failed. Try another browser.", done: "Done" },
-  ko: { label: "한국어", heading: "음성/텍스트 입력", selectLabel: "언어 선택", inputModeLabel: "입력 방식 선택", voice: "🎙 녹음", text: "⌨️ 입력", message: "안녕하세요, 음성 또는 텍스트로 질문을 입력하세요!", start: "🎙 녹음 시작", stop: "🛑 녹음 종료", preview: "녹음 미리 듣기:", error: "오디오를 재생할 수 없습니다. 다른 브라우저를 시도해 보세요.", done: "완료" },
-  km: { label: "ភាសាខ្មែរ", heading: "ការបញ្ចូលសម្លេង/អត្ថបទ", selectLabel: "ជ្រើសរើសភាសា", inputModeLabel: "ជ្រើសរើសវិធីបញ្ចូល", voice: "🎙 កត់ត្រាសម្លេង", text: "⌨️ វាយបញ្ចូល", message: "សូមកត់ត្រាឬវាយបញ្ចូលសំណួររបស់អ្នកដោយប្រើភាសាជាតិរបស់អ្នក!", start: "🎙 ចាប់ផ្តើមកត់ត្រា", stop: "🛑 បញ្ឈប់ការកត់ត្រា", preview: "មើលការកត់ត្រា:", error: "មិនអាចចាក់សម្លេងបានទេ សូមសាកល្បងកម្មវិធីរុករកផ្សេងទៀត។", done: "រួចរាល់" },
-  th: { label: "ภาษาไทย", heading: "การป้อนเสียง/ข้อความ", selectLabel: "เลือกภาษา", inputModeLabel: "เลือกวิธีการป้อน", voice: "🎙 บันทึกเสียง", text: "⌨️ พิมพ์", message: "กรุณาบันทึกหรือพิมพ์คำถามของคุณเป็นภาษาแม่ของคุณ!", start: "🎙 เริ่มบันทึก", stop: "🛑 หยุดบันทึก", preview: "ดูตัวอย่างการบันทึก:", error: "ไม่สามารถเล่นเสียงได้ โปรดลองเบราว์เซอร์อื่น", done: "เสร็จสิ้น" },
-  vi: { label: "Tiếng Việt", heading: "Nhập bằng giọng nói/văn bản", selectLabel: "Chọn ngôn ngữ", inputModeLabel: "Chọn phương thức nhập", voice: "🎙 Ghi âm", text: "⌨️ Nhập", message: "Hãy ghi âm hoặc nhập câu hỏi bằng ngôn ngữ mẹ đẻ của bạn!", start: "🎙 Bắt đầu ghi âm", stop: "🛑 Dừng ghi âm", preview: "Xem trước bản ghi:", error: "Không phát được âm thanh. Vui lòng thử trình duyệt khác.", done: "Hoàn tất" },
-  id: { label: "Bahasa Indonesia", heading: "Input Suara/Teks", selectLabel: "Pilih Bahasa", inputModeLabel: "Pilih metode input", voice: "🎙 Rekam", text: "⌨️ Ketik", message: "Silakan rekam atau ketik pertanyaan Anda dalam bahasa Anda!", start: "🎙 Mulai Merekam", stop: "🛑 Hentikan Rekaman", preview: "Pratinjau Rekaman:", error: "Gagal memutar audio. Coba browser lain.", done: "Selesai" },
-  mm: { label: "မြန်မာ", heading: "အသံ/စာသား ဖြင့်ထည့်သွင်းခြင်း", selectLabel: "ဘာသာစကား ရွေးချယ်ရန်", inputModeLabel: "ထည့်သွင်းနည်း ရွေးချယ်ရန်", voice: "🎙 အသံဖမ်း", text: "⌨️ စာထည့်ရန်", message: "ကျေးဇူးပြုပြီး မိမိမိခင်ဘာသာဖြင့် မေးခွန်းအား အသံဖမ်း သို့မဟုတ် ရိုက်ထည့်ပါ။", start: "🎙 အသံဖမ်းမှု စတင်ရန်", stop: "🛑 အသံဖမ်းမှု ရပ်ရန်", preview: "အသံဖမ်းမှု ကြည့်ရှုရန်:", error: "အသံဖွင့်၍မရပါ။ အခြား browser အသုံးပြုပါ။", done: "ပြီးပြီ" }
+  en: { label: "English", heading: "Voice/Text Input", selectLabel: "Select Language", inputModeLabel: "Choose input method", voice: "🎙 Record", text: "⌨️ Type", message: "Hello, record or type your question in your native language!", start: "🎙 Start Recording", stop: "🛑 Stop Recording", preview: "Preview Recording:", error: "Audio playback failed. Try another browser.", done: "Save", delete: "Delete", delete: "Delete" },
+  ko: { label: "한국어", heading: "음성/텍스트 입력", selectLabel: "언어 선택", inputModeLabel: "입력 방식 선택", voice: "🎙 녹음", text: "⌨️ 입력", message: "안녕하세요, 음성 또는 텍스트로 질문을 입력하세요!", start: "🎙 녹음 시작", stop: "🛑 녹음 종료", preview: "녹음 미리 듣기:", error: "오디오를 재생할 수 없습니다. 다른 브라우저를 시도해 보세요.", done: "저장", delete: "삭제" },
+  km: { label: "ភាសាខ្មែរ", heading: "ការបញ្ចូលសម្លេង/អត្ថបទ", selectLabel: "ជ្រើសរើសភាសា", inputModeLabel: "ជ្រើសរើសវិធីបញ្ចូល", voice: "🎙 កត់ត្រាសម្លេង", text: "⌨️ វាយបញ្ចូល", message: "សូមកត់ត្រាឬវាយបញ្ចូលសំណួររបស់អ្នកដោយប្រើភាសាជាតិរបស់អ្នក!", start: "🎙 ចាប់ផ្តើមកត់ត្រា", stop: "🛑 បញ្ឈប់ការកត់ត្រា", preview: "មើលការកត់ត្រា:", error: "មិនអាចចាក់សម្លេងបានទេ សូមសាកល្បងកម្មវិធីរុករកផ្សេងទៀត។", done: "រក្សាទុក", delete: "លុប" },
+  th: { label: "ภาษาไทย", heading: "การป้อนเสียง/ข้อความ", selectLabel: "เลือกภาษา", inputModeLabel: "เลือกวิธีการป้อน", voice: "🎙 บันทึกเสียง", text: "⌨️ พิมพ์", message: "กรุณาบันทึกหรือพิมพ์คำถามของคุณเป็นภาษาแม่ของคุณ!", start: "🎙 เริ่มบันทึก", stop: "🛑 หยุดบันทึก", preview: "ดูตัวอย่างการบันทึก:", error: "ไม่สามารถเล่นเสียงได้ โปรดลองเบราว์เซอร์อื่น", done: "บันทึก", delete: "ลบ" },
+  vi: { label: "Tiếng Việt", heading: "Nhập bằng giọng nói/văn bản", selectLabel: "Chọn ngôn ngữ", inputModeLabel: "Chọn phương thức nhập", voice: "🎙 Ghi âm", text: "⌨️ Nhập", message: "Hãy ghi âm hoặc nhập câu hỏi bằng ngôn ngữ mẹ đẻ của bạn!", start: "🎙 Bắt đầu ghi âm", stop: "🛑 Dừng ghi âm", preview: "Xem trước bản ghi:", error: "Không phát được âm thanh. Vui lòng thử trình duyệt khác.", done: "Lưu", delete: "Xóa" },
+  id: { label: "Bahasa Indonesia", heading: "Input Suara/Teks", selectLabel: "Pilih Bahasa", inputModeLabel: "Pilih metode input", voice: "🎙 Rekam", text: "⌨️ Ketik", message: "Silakan rekam atau ketik pertanyaan Anda dalam bahasa Anda!", start: "🎙 Mulai Merekam", stop: "🛑 Hentikan Rekaman", preview: "Pratinjau Rekaman:", error: "Gagal memutar audio. Coba browser lain.", done: "Simpan", delete: "Hapus" },
+  mm: { label: "မြန်မာ", heading: "အသံ/စာသား ဖြင့်ထည့်သွင်းခြင်း", selectLabel: "ဘာသာစကား ရွေးချယ်ရန်", inputModeLabel: "ထည့်သွင်းနည်း ရွေးချယ်ရန်", voice: "🎙 အသံဖမ်း", text: "⌨️ စာထည့်ရန်", message: "ကျေးဇူးပြုပြီး မိမိမိခင်ဘာသာဖြင့် မေးခွန်းအား အသံဖမ်း သို့မဟုတ် ရိုက်ထည့်ပါ။", start: "🎙 အသံဖမ်းမှု စတင်ရန်", stop: "🛑 အသံဖမ်းမှု ရပ်ရန်", preview: "အသံဖမ်းမှု ကြည့်ရှုရန်:", error: "အသံဖွင့်၍မရပါ။ အခြား browser အသုံးပြုပါ။", done: "သိမ်းဆည်းပါ", delete: "ဖျက်ပါ" }
 };
 
 export default function VoiceRecorderApp() {
-  const [language, setLanguage] = useState("ko");
+  const [language, setLanguage] = useState("en");
   const [inputMode, setInputMode] = useState("voice");
   const [isRecording, setIsRecording] = useState(false);
   const [audioURL, setAudioURL] = useState<string | null>(null);
@@ -35,7 +35,9 @@ export default function VoiceRecorderApp() {
     setIsRecording(true);
     recorder.ondataavailable = e => audioChunksRef.current.push(e.data);
     recorder.onstop = () => {
-      const blob = new Blob(audioChunksRef.current, { type: "audio/webm" });
+      const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+      const mimeType = isSafari ? "audio/wav" : "audio/webm";
+      const blob = new Blob(audioChunksRef.current, { type: mimeType });
       const url = URL.createObjectURL(blob);
       setAudioURL(url);
       setIsRecording(false);
@@ -49,11 +51,13 @@ export default function VoiceRecorderApp() {
   const handleSubmitText = () => {
     console.log("Text submitted:", textInput);
     setTextInput("");
+    setAudioURL(null);
   };
 
   const handleSubmitAudio = () => {
     console.log("Audio submitted:", audioURL);
     setAudioURL(null);
+    setTextInput("");
   };
 
   return (
@@ -107,8 +111,8 @@ export default function VoiceRecorderApp() {
               <p className="mb-2">{t.preview}</p>
               <audio controls src={audioURL} className="w-full" />
               <div className="mt-4 flex justify-end">
-                <Button onClick={handleSubmitAudio} variant="outline" className="text-green-600 border-green-600">
-                  {t.done}
+                <Button onClick={() => setAudioURL(null)} variant="outline" className="mr-2 text-red-600 border-red-600 flex items-center gap-1"><Trash2 size={16} /> {t.delete}</Button>
+                <Button onClick={handleSubmitAudio} variant="outline" className="text-green-600 border-green-600 flex items-center gap-1"><CheckCircle size={16} /> {t.done}
                 </Button>
               </div>
             </CardContent>
@@ -123,8 +127,8 @@ export default function VoiceRecorderApp() {
             onChange={(e) => setTextInput(e.target.value)}
           />
           <div className="mt-2 flex justify-end">
-            <Button onClick={handleSubmitText} variant="outline" className="text-green-600 border-green-600">
-              {t.done}
+            <Button onClick={() => { setTextInput(""); setAudioURL(null); }} variant="outline" className="mr-2 text-red-600 border-red-600 flex items-center gap-1"><Trash2 size={16} /> {t.delete}</Button>
+            <Button onClick={handleSubmitText} variant="outline" className="text-green-600 border-green-600 flex items-center gap-1"><CheckCircle size={16} /> {t.done}
             </Button>
           </div>
         </div>
