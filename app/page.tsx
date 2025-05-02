@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle, Trash2 } from "lucide-react";
 
 const translations = {
-  en: { label: "English", heading: "Voice/Text Input", selectLabel: "Select Language", inputModeLabel: "Choose input method", voice: "🎙 Record", text: "⌨️ Type", message: "Hello, record or type your question in your native language!", start: "🎙 Start Recording", stop: "🛑 Stop Recording", preview: "Preview Recording:", error: "Audio playback failed. Try another browser.", done: "Save", delete: "Delete", delete: "Delete" },
+  en: { label: "English", heading: "Voice/Text Input", selectLabel: "Select Language", inputModeLabel: "Choose input method", voice: "🎙 Record", text: "⌨️ Type", message: "Hello, record or type your question in your native language!", start: "🎙 Start Recording", stop: "🛑 Stop Recording", preview: "Preview Recording:", error: "Audio playback failed. Try another browser.", done: "Save",  delete: "Delete" },
   ko: { label: "한국어", heading: "음성/텍스트 입력", selectLabel: "언어 선택", inputModeLabel: "입력 방식 선택", voice: "🎙 녹음", text: "⌨️ 입력", message: "안녕하세요, 음성 또는 텍스트로 질문을 입력하세요!", start: "🎙 녹음 시작", stop: "🛑 녹음 종료", preview: "녹음 미리 듣기:", error: "오디오를 재생할 수 없습니다. 다른 브라우저를 시도해 보세요.", done: "저장", delete: "삭제" },
   km: { label: "ភាសាខ្មែរ", heading: "ការបញ្ចូលសម្លេង/អត្ថបទ", selectLabel: "ជ្រើសរើសភាសា", inputModeLabel: "ជ្រើសរើសវិធីបញ្ចូល", voice: "🎙 កត់ត្រាសម្លេង", text: "⌨️ វាយបញ្ចូល", message: "សូមកត់ត្រាឬវាយបញ្ចូលសំណួររបស់អ្នកដោយប្រើភាសាជាតិរបស់អ្នក!", start: "🎙 ចាប់ផ្តើមកត់ត្រា", stop: "🛑 បញ្ឈប់ការកត់ត្រា", preview: "មើលការកត់ត្រា:", error: "មិនអាចចាក់សម្លេងបានទេ សូមសាកល្បងកម្មវិធីរុករកផ្សេងទៀត។", done: "រក្សាទុក", delete: "លុប" },
   th: { label: "ภาษาไทย", heading: "การป้อนเสียง/ข้อความ", selectLabel: "เลือกภาษา", inputModeLabel: "เลือกวิธีการป้อน", voice: "🎙 บันทึกเสียง", text: "⌨️ พิมพ์", message: "กรุณาบันทึกหรือพิมพ์คำถามของคุณเป็นภาษาแม่ของคุณ!", start: "🎙 เริ่มบันทึก", stop: "🛑 หยุดบันทึก", preview: "ดูตัวอย่างการบันทึก:", error: "ไม่สามารถเล่นเสียงได้ โปรดลองเบราว์เซอร์อื่น", done: "บันทึก", delete: "ลบ" },
@@ -28,9 +28,17 @@ export default function VoiceRecorderApp() {
 
   const startRecording = async () => {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    const recorder = new MediaRecorder(stream);
+    const isSafari =
+  typeof navigator.userAgentData !== "undefined"
+    ? navigator.userAgentData.brands?.some((b) => b.brand === "Safari")
+    : /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+
+    // MIME type already defined in startRecording, reusing
+      const mimeType = mediaRecorderRef.current?.mimeType || (isSafari ? "audio/mpeg" : "audio/webm");
+    const recorder = new MediaRecorder(stream, { mimeType });
+
     mediaRecorderRef.current = recorder;
-    audioChunksRef.current = [];
+    audioChunksRef.current.length = 0;
     recorder.start();
     setIsRecording(true);
     recorder.ondataavailable = e => audioChunksRef.current.push(e.data);
@@ -46,7 +54,7 @@ export default function VoiceRecorderApp() {
       }
 
       const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-      const mimeType = isSafari ? "audio/wav" : "audio/webm";
+      const mimeType = isSafari ? "audio/mpeg" : "audio/webm";
       const blob = new Blob(audioChunksRef.current, { type: mimeType });
       console.log("Blob size:", blob.size);
       if (blob.size === 0) {
@@ -58,6 +66,10 @@ export default function VoiceRecorderApp() {
 
       const url = URL.createObjectURL(blob);
       console.log("Audio URL:", url);
+      if (audioURL) {
+      URL.revokeObjectURL(audioURL);
+      }
+
       setAudioURL(url);
       setIsRecording(false);
     };
