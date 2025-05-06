@@ -56,6 +56,27 @@ export default function VoiceRecorderApp() {
 
       const typeInner = isSafari ? "audio/mp4" : "audio/webm";
       const blob = new Blob(audioChunksRef.current, { type: typeInner });
+
+// 🔽 Supabase에 업로드 시작
+const file = new File([blob], `recording-${Date.now()}.webm`, {
+  type: "audio/webm",
+});
+
+const { data, error } = await supabase.storage
+  .from("your-bucket-name") // ← 버킷 이름으로 변경
+  .upload(`recordings/${file.name}`, file);
+
+if (error) {
+  console.error("Supabase upload error:", error.message);
+  return; // alert 생략하고 로그만 남김
+}
+
+console.log("✅ 업로드 성공:", data);
+alert("Success!");
+
+      
+
+      
       console.log("Blob size:", blob.size);
       if (blob.size === 0) {
         console.warn("Blob is empty. Cannot create audio URL.");
