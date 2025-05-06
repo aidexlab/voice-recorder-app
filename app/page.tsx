@@ -98,9 +98,18 @@ export default function VoiceRecorderApp() {
     setIsRecording(true);
   };
 
-  const stopRecording = () => {
+ const stopRecording = () => {
+  console.log("🛑 Stop button clicked");
+  try {
     mediaRecorderRef.current?.stop();
-  };
+  } catch (err) {
+    console.error("🎯 MediaRecorder stop error:", err);
+  }
+};
+  
+  //const stopRecording = () => {
+   // mediaRecorderRef.current?.stop();
+  //}; 
 
   const handleSubmitText = () => {
     console.log("Text submitted:", textInput);
