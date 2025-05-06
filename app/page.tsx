@@ -46,7 +46,7 @@ export default function VoiceRecorderApp() {
     audioChunksRef.current.length = 0;
 
     recorder.ondataavailable = (e) => audioChunksRef.current.push(e.data);
-    recorder.onstop = () => {
+    recorder.onstop async () => {
       console.log("Recording stopped. Checking chunks...");
       console.log("Chunks:", audioChunksRef.current);
       if (audioChunksRef.current.length === 0) {
