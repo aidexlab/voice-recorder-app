@@ -4,6 +4,8 @@ import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle, Trash2 } from "lucide-react";
+import { supabase } from "@/lib/supabaseClient";
+
 
 const translations = {
   en: { label: "English", heading: "Voice/Text Input", selectLabel: "Select Language", inputModeLabel: "Choose input method", voice: "🎙 Record", text: "⌨️ Type", message: "Hello, record or type your question in your native language!", start: "🎙 Start Recording", stop: "🛑 Stop Recording", preview: "Preview Recording:", error: "Audio playback failed. Try another browser.", done: "Save", delete: "Delete" },
@@ -58,21 +60,21 @@ export default function VoiceRecorderApp() {
       const blob = new Blob(audioChunksRef.current, { type: typeInner });
 
 // 🔽 Supabase에 업로드 시작
-const file = new File([blob], `recording-${Date.now()}.webm`, {
-  type: "audio/webm",
-});
+      const file = new File([blob], `recording-${Date.now()}.webm`, {
+      type: "audio/webm",
+      });
 
-const { data, error } = await supabase.storage
-  .from("your-bucket-name") // ← 버킷 이름으로 변경
-  .upload(`recordings/${file.name}`, file);
+      const { data, error } = await supabase.storage
+      .from("recordings") // ← 버킷 이름으로 변경
+      .upload(`recordings/${file.name}`, file);
 
-if (error) {
-  console.error("Supabase upload error:", error.message);
-  return; // alert 생략하고 로그만 남김
-}
+      if (error) {
+      console.error("Supabase upload error:", error.message);
+      return; // alert 생략하고 로그만 남김
+      }
 
-console.log("✅ 업로드 성공:", data);
-alert("Success!");
+      console.log("✅ 업로드 성공:", data);
+      alert("Success!");
 
       
 
