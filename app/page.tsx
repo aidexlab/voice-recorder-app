@@ -202,7 +202,18 @@ export default function VoiceRecorderApp() {
       console.error("Supabase upload error:", error.message);
       return alert("Upload failed");
     }
+    // 3) 메타데이터 DB에 저장
+  const { error: dbError } = await supabase
+    .from("recordings")
+    .insert([{
+      language,            // 선택된 언어 코드
+      mode: "voice",       // 음성 모드
+      audio_url: data.path // 업로드된 파일 경로
+    }]);
 
+  if (dbError) {
+    console.error("DB insert error:", dbError.message);
+  }
     alert("Success!");
 
     // 업로드 후 UI 초기화
@@ -218,10 +229,14 @@ export default function VoiceRecorderApp() {
       return alert("Please enter some text.");
     }
 
-    // Supabase 테이블에 텍스트 레코드 삽입
+    /// INSERT 시 language, mode, transcript 함께 저장
     const { data, error } = await supabase
       .from("recordings")
-      .insert([{ transcript: textInput }]);
+      .insert([{
+        language,       // 선택된 언어 코드
+        mode: "text",   // 텍스트 모드
+        transcript: textInput
+    }]);
 
     if (error) {
       console.error("Text save error:", error.message);
