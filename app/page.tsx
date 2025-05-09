@@ -220,7 +220,7 @@ export default function VoiceRecorderApp() {
 
     // Supabase 테이블에 텍스트 레코드 삽입
     const { data, error } = await supabase
-      .from("text_records")
+      .from("recordings")
       .insert([{ content: textInput }]);
 
     if (error) {
