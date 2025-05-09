@@ -221,7 +221,7 @@ export default function VoiceRecorderApp() {
     // Supabase 테이블에 텍스트 레코드 삽입
     const { data, error } = await supabase
       .from("recordings")
-      .insert([{ content: textInput }]);
+      .insert([{ transcript: textInput }]);
 
     if (error) {
       console.error("Text save error:", error.message);
