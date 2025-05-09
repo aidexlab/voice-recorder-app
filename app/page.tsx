@@ -195,7 +195,7 @@ export default function VoiceRecorderApp() {
 
     // Supabase Storage에 업로드
     const { data, error } = await supabase.storage
-      .from("recodings")                // 버킷 이름
+      .from("recordings")                // 버킷 이름
       .upload(`recordings/${file.name}`, file);
 
     if (error) {
