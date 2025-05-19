@@ -11,8 +11,11 @@ export async function POST(req: Request) {
   }
 
   const data = await req.formData();
-  const file = data.get('file') as File;
+  const file = data.get('file');
 
+  if (!(file instanceof File)) {
+    return NextResponse.json({ error: '파일이 업로드되지 않았습니다.' }, { status: 400 });
+  }  
   try {
     const transcription = await openai.audio.transcriptions.create({
       file,
