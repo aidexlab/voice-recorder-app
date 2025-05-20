@@ -182,16 +182,18 @@ export default function VoiceRecorderApp() {
     mediaRecorderRef.current?.stop();
   };
 
-  /** ► 오디오 저장(서버 업로드) */
-  const handleSubmitAudio = async () => {
-    if (!audioBlob) {
-      return alert("No audio recorded.");
-    }
-    // ▶︎ Whisper API 호출 코드 추가 (여기부터)
-    const formData = new FormData();
-    formData.append("file", audioBlob, "recording.webm"); // 오디오 Blob 전달
+/** ► 오디오 저장(서버 업로드) */
+const handleSubmitAudio = async () => {
+  if (!audioBlob) {
+    return alert("No audio recorded.");
+  }
 
-    try {
+  // 1. Whisper API 호출
+  let whisperText = '';
+  try {
+    const formData = new FormData();
+    formData.append("file", audioBlob, "recording.webm");
+
     const response = await fetch("/api/transcribe", {
       method: "POST",
       body: formData,
@@ -200,51 +202,52 @@ export default function VoiceRecorderApp() {
     const result = await response.json();
 
     if (response.ok && result.text) {
-      alert(`Whisper 결과: ${result.text}`);
-      // 이 결과를 Supabase에 추가 저장도 가능합니다!
+      whisperText = result.text;
+      console.log("✅ Whisper 결과:", whisperText);
     } else {
-      throw new Error(result.error || "Whisper 변환 실패");
+      console.warn("⚠️ Whisper 실패:", result.error);
     }
-  } catch (error) {
-    console.error("Whisper 호출 오류:", error);
-    return alert(`Whisper 호출 오류: ${error.message}`);
+  } catch (error: any) {
+    console.error("❌ Whisper 호출 오류:", error.message);
   }
-  // ▶︎ Whisper API 호출 코드 끝
-  
-    // Blob → File 변환
-    const file = new File([audioBlob], `recording-${Date.now()}.webm`, {
-      type: "audio/webm",
-    });
 
-    // Supabase Storage에 업로드
-    const { data, error } = await supabase.storage
-      .from("recordings")                // 버킷 이름
-      .upload(`recordings/${file.name}`, file);
+  // 2. Supabase Storage에 업로드
+  const file = new File([audioBlob], `recording-${Date.now()}.webm`, {
+    type: "audio/webm",
+  });
 
-    if (error) {
-      console.error("Supabase upload error:", error.message);
-      return alert("Upload failed");
-    }
-    // 3) 메타데이터 DB에 저장
+  const { data, error } = await supabase.storage
+    .from("recordings") // 버킷 이름
+    .upload(`recordings/${file.name}`, file);
+
+  if (error) {
+    console.error("📦 Supabase upload error:", error.message);
+    return alert("Upload failed");
+  }
+
+  // 3. Supabase DB에 메타데이터 저장
   const { error: dbError } = await supabase
     .from("recordings")
     .insert([{
-      language,            // 선택된 언어 코드
-      mode: "voice",       // 음성 모드
-      audio_url: data.path // 업로드된 파일 경로
+      language,             // 선택된 언어 코드
+      mode: "voice",        // 음성 모드
+      audio_url: data.path, // 업로드된 파일 경로
+      transcript: whisperText || null, // Whisper 결과 (또는 null)
     }]);
 
   if (dbError) {
-    console.error("DB insert error:", dbError.message);
+    console.error("📄 DB insert error:", dbError.message);
+    return alert("DB 저장 실패");
   }
-    alert("Success!");
 
-    // 업로드 후 UI 초기화
-    if (audioURL) URL.revokeObjectURL(audioURL);
-    setAudioURL(null);
-    setAudioBlob(null);
-    setTextInput("");
-  };
+  alert("✅ 음성 저장 성공");
+
+  // 상태 초기화
+  if (audioURL) URL.revokeObjectURL(audioURL);
+  setAudioURL(null);
+  setAudioBlob(null);
+  setTextInput("");
+};
 
   /** ► 텍스트 저장(서버 저장) */
   const handleSubmitText = async () => {
