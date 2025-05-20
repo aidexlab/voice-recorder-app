@@ -1,9 +1,14 @@
 export const runtime = 'nodejs';
 
+
 import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
 
 export async function POST(req: Request) {
+  // ✅ 여기에 추가: 실제 환경변수가 제대로 불러와지는지 확인
+  console.log("OPENAI_API_KEY =", process.env.OPENAI_API_KEY);
+
+  
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
     console.error("❌ OPENAI_API_KEY가 없습니다.");

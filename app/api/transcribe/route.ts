@@ -1,5 +1,7 @@
 // 1) 반드시 맨 위에 추가 — Edge가 아닌 Node.js로 실행됩니다.
+
 export const runtime = 'nodejs';
+
 
 import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
